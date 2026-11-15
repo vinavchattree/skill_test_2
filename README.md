@@ -58,7 +58,7 @@ Build docker images
 
 <img width="940" height="497" alt="image" src="https://github.com/user-attachments/assets/bb2ad309-c1c2-497e-a425-c6f392f9ebe0" />
 
-
+Apply kubernetes : kubectl apply -f k8s/deployment.yaml
 
 Validate if services are working
 
@@ -84,6 +84,10 @@ Verifying services :
 Kubernetes logs
 
 <img width="900" height="106" alt="image" src="https://github.com/user-attachments/assets/30425d56-9f77-4ffb-97f7-3f52bd448e4c" />
+
+
+<img width="843" height="258" alt="image" src="https://github.com/user-attachments/assets/3ab50be8-a523-46a7-994e-dead5dc15799" />
+
 
 
 
