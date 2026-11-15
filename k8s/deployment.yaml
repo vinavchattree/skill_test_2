@@ -1,8 +1,11 @@
+
 apiVersion: v1
 kind: Namespace
 metadata:
   name: test2
+
 ---
+# User Service Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,30 +22,51 @@ spec:
         app: user-service
     spec:
       containers:
-      - name: user-service
-        image: test2-user:v1
-        imagePullPolicy: Never
-        ports:
-        - containerPort: 3000
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 3000
-          initialDelaySeconds: 5
-          periodSeconds: 10
+        - name: user-service
+          image: test2-user:v2
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+
 ---
+# User Service
 apiVersion: v1
 kind: Service
 metadata:
   name: user-service
   namespace: test2
 spec:
+  type: ClusterIP
   selector:
     app: user-service
   ports:
-  - port: 3000
-    targetPort: 3000
+    - port: 3000
+      targetPort: 3000
+
 ---
+# Product Service Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -59,30 +83,51 @@ spec:
         app: product-service
     spec:
       containers:
-      - name: product-service
-        image: test2-product:v1
-        imagePullPolicy: Never
-        ports:
-        - containerPort: 3001
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 3001
-          initialDelaySeconds: 5
-          periodSeconds: 10
+        - name: product-service
+          image: test2-product:v2
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3001
+          env:
+            - name: PORT
+              value: "3001"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 15
+            periodSeconds: 10
+
 ---
+# Product Service
 apiVersion: v1
 kind: Service
 metadata:
   name: product-service
   namespace: test2
 spec:
+  type: ClusterIP
   selector:
     app: product-service
   ports:
-  - port: 3001
-    targetPort: 3001
+    - port: 3001
+      targetPort: 3001
+
 ---
+# Order Service Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -99,30 +144,51 @@ spec:
         app: order-service
     spec:
       containers:
-      - name: order-service
-        image: test2-order:v1
-        imagePullPolicy: Never
-        ports:
-        - containerPort: 3002
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 3002
-          initialDelaySeconds: 5
-          periodSeconds: 10
+        - name: order-service
+          image: test2-order:v2
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3002
+          env:
+            - name: PORT
+              value: "3002"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3002
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3002
+            initialDelaySeconds: 15
+            periodSeconds: 10
+
 ---
+# Order Service
 apiVersion: v1
 kind: Service
 metadata:
   name: order-service
   namespace: test2
 spec:
+  type: ClusterIP
   selector:
     app: order-service
   ports:
-  - port: 3002
-    targetPort: 3002
+    - port: 3002
+      targetPort: 3002
+
 ---
+# Gateway Service Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -139,18 +205,42 @@ spec:
         app: gateway-service
     spec:
       containers:
-      - name: gateway-service
-        image: test2-gateway:v1
-        imagePullPolicy: Never
-        ports:
-        - containerPort: 3003
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 3003
-          initialDelaySeconds: 5
-          periodSeconds: 10
+        - name: gateway-service
+          image: test2-gateway:v3
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3003
+          env:
+            - name: PORT
+              value: "3003"
+            - name: USER_SERVICE_URL
+              value: "http://user-service:3000"
+            - name: PRODUCT_SERVICE_URL
+              value: "http://product-service:3001"
+            - name: ORDER_SERVICE_URL
+              value: "http://order-service:3002"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3003
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3003
+            initialDelaySeconds: 15
+            periodSeconds: 10
+
 ---
+# Gateway Service
 apiVersion: v1
 kind: Service
 metadata:
@@ -161,6 +251,6 @@ spec:
   selector:
     app: gateway-service
   ports:
-  - port: 3003
-    targetPort: 3003
-    nodePort: 30080
+    - port: 3003
+      targetPort: 3003
+      nodePort: 30080
